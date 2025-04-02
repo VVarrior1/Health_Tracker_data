@@ -18,8 +18,12 @@ interface HealthChartsProps {
   data: HealthData;
 }
 
+type TimeFrame = 'week' | 'month' | '6months';
+
 export default function HealthCharts({ data }: HealthChartsProps) {
-  const [timeFrame, setTimeFrame] = useState<'week' | 'month' | '6months'>('6months');
+  const [stepsTimeFrame, setStepsTimeFrame] = useState<TimeFrame>('6months');
+  const [heartRateTimeFrame, setHeartRateTimeFrame] = useState<TimeFrame>('6months');
+  const [sleepTimeFrame, setSleepTimeFrame] = useState<TimeFrame>('6months');
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -33,7 +37,7 @@ export default function HealthCharts({ data }: HealthChartsProps) {
   };
 
   // Apply time frame filter
-  const filterDataByTimeFrame = <T extends { date: string }>(items: T[]): T[] => {
+  const filterDataByTimeFrame = <T extends { date: string }>(items: T[], timeFrame: TimeFrame): T[] => {
     const now = new Date();
     const cutoffDate = new Date();
     
@@ -49,10 +53,10 @@ export default function HealthCharts({ data }: HealthChartsProps) {
     return items.filter(item => new Date(item.date) >= cutoffDate);
   };
 
-  const filteredSteps = filterDataByTimeFrame(data.steps);
-  const filteredHeartRate = filterDataByTimeFrame(data.heartRate);
-  const filteredRestingHeartRate = filterDataByTimeFrame(data.restingHeartRate);
-  const filteredSleep = filterDataByTimeFrame(data.sleep);
+  const filteredSteps = filterDataByTimeFrame(data.steps, stepsTimeFrame);
+  const filteredHeartRate = filterDataByTimeFrame(data.heartRate, heartRateTimeFrame);
+  const filteredRestingHeartRate = filterDataByTimeFrame(data.restingHeartRate, heartRateTimeFrame);
+  const filteredSleep = filterDataByTimeFrame(data.sleep, sleepTimeFrame);
 
   // Calculate averages for the current time frame
   const calculateAverage = <T extends { [key: string]: any }>(items: T[], key: string): number => {
@@ -129,52 +133,65 @@ export default function HealthCharts({ data }: HealthChartsProps) {
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [data.restingHeartRate]);
 
+  // Time frame control component
+  const TimeFrameControl = ({ 
+    timeFrame, 
+    setTimeFrame 
+  }: { 
+    timeFrame: TimeFrame, 
+    setTimeFrame: (tf: TimeFrame) => void 
+  }) => (
+    <div className="flex space-x-2">
+      <button
+        onClick={() => setTimeFrame('week')}
+        className={`px-3 py-1 text-sm rounded-md ${
+          timeFrame === 'week' 
+            ? 'bg-blue-600 text-white' 
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        }`}
+      >
+        Last Week
+      </button>
+      <button
+        onClick={() => setTimeFrame('month')}
+        className={`px-3 py-1 text-sm rounded-md ${
+          timeFrame === 'month' 
+            ? 'bg-blue-600 text-white' 
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        }`}
+      >
+        Last Month
+      </button>
+      <button
+        onClick={() => setTimeFrame('6months')}
+        className={`px-3 py-1 text-sm rounded-md ${
+          timeFrame === '6months' 
+            ? 'bg-blue-600 text-white' 
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        }`}
+      >
+        Last 6 Months
+      </button>
+    </div>
+  );
+
   return (
     <div className="space-y-8">
       <div className="bg-white p-4 rounded-lg shadow">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Health Data Visualization</h2>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setTimeFrame('week')}
-              className={`px-3 py-1 text-sm rounded-md ${
-                timeFrame === 'week' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Last Week
-            </button>
-            <button
-              onClick={() => setTimeFrame('month')}
-              className={`px-3 py-1 text-sm rounded-md ${
-                timeFrame === 'month' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Last Month
-            </button>
-            <button
-              onClick={() => setTimeFrame('6months')}
-              className={`px-3 py-1 text-sm rounded-md ${
-                timeFrame === '6months' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Last 6 Months
-            </button>
-          </div>
         </div>
       </div>
 
       {/* Steps Chart */}
       <div className="bg-white p-6 rounded-lg shadow">
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-4">
           <h3 className="text-lg font-semibold">Daily Steps</h3>
-          <div className="text-sm text-gray-500 flex items-center">
-            <span className="font-medium text-blue-600 mr-1">Avg: {avgSteps.toLocaleString()}</span> steps per day
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="text-sm text-gray-500 flex items-center">
+              <span className="font-medium text-blue-600 mr-1">Avg: {avgSteps.toLocaleString()}</span> steps per day
+            </div>
+            <TimeFrameControl timeFrame={stepsTimeFrame} setTimeFrame={setStepsTimeFrame} />
           </div>
         </div>
         <div className="h-[400px]">
@@ -207,11 +224,14 @@ export default function HealthCharts({ data }: HealthChartsProps) {
 
       {/* Heart Rate Chart */}
       <div className="bg-white p-6 rounded-lg shadow">
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-4">
           <h3 className="text-lg font-semibold">Heart Rate</h3>
-          <div className="text-sm text-gray-500 flex items-center">
-            <span className="font-medium text-red-600 mr-1">Avg: {avgHeartRate}</span> bpm |
-            <span className="font-medium text-purple-600 ml-2 mr-1">Resting: {avgRestingHeartRate}</span> bpm
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="text-sm text-gray-500 flex items-center">
+              <span className="font-medium text-red-600 mr-1">Avg: {avgHeartRate}</span> bpm |
+              <span className="font-medium text-purple-600 ml-2 mr-1">Resting: {avgRestingHeartRate}</span> bpm
+            </div>
+            <TimeFrameControl timeFrame={heartRateTimeFrame} setTimeFrame={setHeartRateTimeFrame} />
           </div>
         </div>
         <div className="h-[400px]">
@@ -257,11 +277,14 @@ export default function HealthCharts({ data }: HealthChartsProps) {
 
       {/* Sleep Chart */}
       <div className="bg-white p-6 rounded-lg shadow">
-        <div className="flex justify-between items-start mb-4">
-          <h3 className="text-lg font-semibold">Sleep Duration ({timeFrame === 'week' ? 'Last Week' : timeFrame === 'month' ? 'Last Month' : 'Last 6 Months'})</h3>
-          <div className="flex items-center text-sm text-gray-500">
-            <span className="font-medium text-indigo-600 mr-1">Avg: {formatDuration(avgSleepDuration)}</span>
-            <span className="text-xs text-gray-400 ml-3">Sessions under 3h filtered out</span>
+        <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-4">
+          <h3 className="text-lg font-semibold">Sleep Duration</h3>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex items-center text-sm text-gray-500">
+              <span className="font-medium text-indigo-600 mr-1">Avg: {formatDuration(avgSleepDuration)}</span>
+              <span className="text-xs text-gray-400 ml-3">Sessions under 3h filtered out</span>
+            </div>
+            <TimeFrameControl timeFrame={sleepTimeFrame} setTimeFrame={setSleepTimeFrame} />
           </div>
         </div>
         
@@ -293,7 +316,8 @@ export default function HealthCharts({ data }: HealthChartsProps) {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+            
+            <div className="mt-4 space-y-2">
               <div className="bg-indigo-50 p-3 rounded-md text-sm flex items-start">
                 <div className="h-5 w-5 rounded-full bg-indigo-500 flex-shrink-0 mt-0.5 mr-2"></div>
                 <div>
