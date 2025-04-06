@@ -1,0 +1,97 @@
+{
+  "rules": {
+    "commit_message_guidelines": {
+      "description": "Guidelines for creating conventional commit messages for a Next.js app with Recharts.",
+      "format": {
+        "description": "Conventional commits spec for Next.js, TailwindCSS, and Recharts.",
+        "body": "<type>[optional scope]: <description>\n\n[optional body]\n\n[optional footer(s)]"
+      },
+      "enabled": true,
+      "rules": [
+        {
+          "description": "Always suggest a conventional commit with a type (e.g., feat, fix, chore) and optional scope in lowercase."
+        },
+        {
+          "description": "Keep the commit message concise and within 60 characters."
+        },
+        {
+          "description": "Ensure the commit message is ready to paste into the terminal."
+        },
+        {
+          "description": "Provide the full git commit command, not just the message."
+        }
+      ],
+      "examples": [
+        {
+          "prompt": "<diff_context> /commit",
+          "response": "git commit -m 'feat(charts): add Recharts bar chart for steps'"
+        },
+        {
+          "prompt": "<diff_context> /commit",
+          "response": "git commit -m 'style: update TailwindCSS for responsive layout'"
+        }
+      ]
+    },
+    "development_guidelines": {
+      "description": "Guidelines for developing a Next.js app with TailwindCSS and Recharts.",
+      "enabled": true,
+      "rules": [
+        {
+          "description": "Use Next.js 14 with the App Router and prefer Server Components where possible."
+        },
+        {
+          "description": "Style all components with TailwindCSS utility classes, avoiding inline styles."
+        },
+        {
+          "description": "Implement charts with Recharts, using components like LineChart and BarChart."
+        },
+        {
+          "description": "Enforce TypeScript with strict type safety using interfaces for props and data."
+        },
+        {
+          "description": "Optimize performance with useMemo for expensive computations (e.g., data grouping)."
+        }
+      ]
+    },
+    "coding_style": {
+      "description": "Guidelines for consistent coding style in a Next.js app with Recharts.",
+      "enabled": true,
+      "rules": [
+        {
+          "description": "Code must start with path/filename as a one-line comment (e.g., // src/components/health-charts.tsx)."
+        },
+        {
+          "description": "Comments should explain intent or purpose, not just restate the code."
+        },
+        {
+          "description": "Use functional components with TypeScript and TailwindCSS classes."
+        },
+        {
+          "description": "Prioritize modularity, DRY principles, and responsive design with TailwindCSS."
+        },
+        {
+          "description": "Group and filter data with useMemo to optimize chart rendering."
+        },
+        {
+          "description": "Use semantic HTML and TailwindCSS for accessibility and styling (e.g., bg-white, shadow)."
+        }
+      ]
+    },
+    "custom_slash_commands": {
+      "description": "Custom slash commands for the project.",
+      "enabled": true,
+      "commands": [
+        {
+          "name": "/commit",
+          "description": "Generate a Git commit message using the conventional commits spec.",
+          "enabled": true
+        },
+        {
+          "name": "/chart",
+          "description": "Generate a reusable Recharts component styled with TailwindCSS.",
+          "enabled": true
+        }
+      ]
+    }
+  }
+}

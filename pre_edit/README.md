@@ -11,14 +11,6 @@ A Next.js application that allows users to upload and analyze their Apple Watch 
 - Responsive design with Tailwind CSS
 - Server-side rendering for optimal performance
 
-## Showcase
-
-<div align="center">
-  <img src="./public/images/showcase_1.png" alt="Health Data Dashboard" width="500" /><br/><br/>
-  <img src="./public/images/showcase_2.png" alt="Activity Tracking" width="500" /><br/><br/>
-  <img src="./public/images/showcase_3.png" alt="Health Metrics Analysis" width="500" />
-</div>
-
 ## Getting Started
 
 1. Clone the repository
