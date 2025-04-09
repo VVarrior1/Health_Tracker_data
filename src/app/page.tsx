@@ -5,8 +5,10 @@ import FileUpload from '@/components/FileUpload';
 import HealthCharts from '@/components/HealthCharts';
 import HealthSummary from '@/components/HealthSummary';
 import HealthGoals from '@/components/HealthGoals';
+import CorrelationInsights from '@/components/CorrelationInsights';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ProcessingSteps from '@/components/ProcessingSteps';
+import SampleDataGenerator from '@/components/SampleDataGenerator';
 import { HealthData } from '@/types/health';
 import { parseHealthData } from '@/lib/healthDataParser';
 
@@ -15,7 +17,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [processingStep, setProcessingStep] = useState(0);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'goals'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'goals' | 'insights'>('dashboard');
 
   // Reset processing step when not loading
   useEffect(() => {
@@ -52,6 +54,12 @@ export default function Home() {
     }
   };
 
+  const handleSampleDataGenerated = (data: HealthData) => {
+    setHealthData(data);
+    // Default to the insights tab when using sample data
+    setActiveTab('insights');
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -77,6 +85,12 @@ export default function Home() {
             ) : (
               <>
                 <FileUpload onFileUpload={handleFileUpload} />
+                
+                <div className="mt-8 text-center">
+                  <p className="text-sm text-gray-500 mb-2">No Apple Watch data file? Try our demo:</p>
+                  <SampleDataGenerator onDataGenerated={handleSampleDataGenerated} />
+                </div>
+                
                 {error && (
                   <div className="mt-4 p-4 bg-red-50 rounded-md">
                     <div className="flex">
@@ -110,6 +124,16 @@ export default function Home() {
                   Dashboard
                 </button>
                 <button
+                  onClick={() => setActiveTab('insights')}
+                  className={`pb-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === 'insights'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  Insights
+                </button>
+                <button
                   onClick={() => setActiveTab('goals')}
                   className={`pb-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === 'goals'
@@ -122,12 +146,23 @@ export default function Home() {
               </nav>
             </div>
 
-            {activeTab === 'dashboard' ? (
+            {activeTab === 'dashboard' && (
               <div className="space-y-8">
                 <HealthSummary summary={healthData.summary} />
                 <HealthCharts data={healthData} />
               </div>
-            ) : (
+            )}
+            
+            {activeTab === 'insights' && (
+              <div className="space-y-8">
+                <CorrelationInsights 
+                  healthData={healthData} 
+                  onTabChange={setActiveTab} 
+                />
+              </div>
+            )}
+            
+            {activeTab === 'goals' && (
               <HealthGoals healthData={healthData} />
             )}
 
